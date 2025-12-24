@@ -483,6 +483,7 @@
         calculatedResults = calculateResults();
 
         // Webhook送信用データ
+        // 成長チャンス = 100% - 才能指数（高いほど成長の余地が大きい）
         var top5 = calculatedResults.sortedRoots.slice(0, 5);
         var domainText = '';
         for (var i = 0; i < calculatedResults.sortedDomains.length; i++) {
@@ -504,11 +505,11 @@
               name: userName,
               email: userEmail,
               overallTalentIndex: Math.round(calculatedResults.overallTalentIndex * 100),
-              top1: top5[0] ? top5[0][0] + ' (' + Math.round(top5[0][1].talentIndex * 100) + '%)' : '',
-              top2: top5[1] ? top5[1][0] + ' (' + Math.round(top5[1][1].talentIndex * 100) + '%)' : '',
-              top3: top5[2] ? top5[2][0] + ' (' + Math.round(top5[2][1].talentIndex * 100) + '%)' : '',
-              top4: top5[3] ? top5[3][0] + ' (' + Math.round(top5[3][1].talentIndex * 100) + '%)' : '',
-              top5: top5[4] ? top5[4][0] + ' (' + Math.round(top5[4][1].talentIndex * 100) + '%)' : '',
+              top1: top5[0] ? top5[0][0] + ' (' + Math.round((1 - top5[0][1].talentIndex) * 100) + '%)' : '',
+              top2: top5[1] ? top5[1][0] + ' (' + Math.round((1 - top5[1][1].talentIndex) * 100) + '%)' : '',
+              top3: top5[2] ? top5[2][0] + ' (' + Math.round((1 - top5[2][1].talentIndex) * 100) + '%)' : '',
+              top4: top5[3] ? top5[3][0] + ' (' + Math.round((1 - top5[3][1].talentIndex) * 100) + '%)' : '',
+              top5: top5[4] ? top5[4][0] + ' (' + Math.round((1 - top5[4][1].talentIndex) * 100) + '%)' : '',
               domainScores: domainText,
               layerScores: layerText
             })
