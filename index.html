@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>根っ子診断 | 潜在意識の深層心理診断</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            leaf: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d'
+            },
+            gold: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Noto Sans JP', sans-serif; }
+  </style>
+</head>
+<body class="bg-leaf-50">
+  <div id="root"></div>
+  
+  <script>
+    // ============================================
+    // 【重要】設定
+    // ============================================
+    var WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyduLf8gMB0lRvyGKP545IEWiNWGpGtImlcjQM9OfVXcqaEWhz0Lcp7Z975h_irWqqAYg/exec";
+    var NEWSLETTER_URL = "https://www.reservestock.jp/subscribe/328478";
+    // ============================================
+
+    // 26問の質問データ（各根っ子タイプ1問）
+    var questions = [
+      // 確信（5）
+      { id: 1, domain: "確信", layer: "第3層", rootType: "家系の恥", question: "家系に触れてはいけない話題がある。" },
+      { id: 2, domain: "確信", layer: "第1層", rootType: "比較", question: "いつも他人と比べてしまう。" },
+      { id: 3, domain: "確信", layer: "第1層", rootType: "無力感", question: "「どうせできない」とよく感じる。" },
+      { id: 4, domain: "確信", layer: "第1層", rootType: "罪悪感", question: "楽しむことに罪悪感がある。" },
+      { id: 5, domain: "確信", layer: "第1層", rootType: "自己否定", question: "自分には価値がないと感じることがある。" },
+      // 信念（3）
+      { id: 6, domain: "信念", layer: "第1層", rootType: "不安", question: "未来について漠然とした不安がある。" },
+      { id: 7, domain: "信念", layer: "第3層", rootType: "家系の恐怖", question: "理由のない不安がつきまとう。" },
+      { id: 8, domain: "信念", layer: "第1層", rootType: "被害者意識", question: "「自分ばかり損している」と感じやすい。" },
+      // 感謝（6）
+      { id: 9, domain: "感謝", layer: "第3層", rootType: "家系の役割固定", question: "「長男だから」など役割で判断される感覚がある。" },
+      { id: 10, domain: "感謝", layer: "第3層", rootType: "家系の犠牲", question: "家族のために自分が犠牲になるのが当然と思う。" },
+      { id: 11, domain: "感謝", layer: "第2層", rootType: "排他性", question: "自分の考えが正しいと思いがち。" },
+      { id: 12, domain: "感謝", layer: "第2層", rootType: "自己犠牲", question: "人のために頑張りすぎてしまう。" },
+      { id: 13, domain: "感謝", layer: "第2層", rootType: "貧困マインド", question: "お金に対して不安が強い。" },
+      { id: 14, domain: "感謝", layer: "第1層", rootType: "過剰な自己責任", question: "問題が起こると「私のせいだ」と感じやすい。" },
+      // 愛（4）
+      { id: 15, domain: "愛", layer: "第2層", rootType: "人間不信", question: "人は裏切るものだと思ってしまう。" },
+      { id: 16, domain: "愛", layer: "第3層", rootType: "家系の喪失", question: "家族の悲しみを自分が背負っている気がする。" },
+      { id: 17, domain: "愛", layer: "第1層", rootType: "悲しみ", question: "過去の別れや喪失が尾を引いている。" },
+      { id: 18, domain: "愛", layer: "第2層", rootType: "愛を受け取れない", question: "褒められても素直に受け取れない。" },
+      // 平常心（5）
+      { id: 19, domain: "平常心", layer: "第1層", rootType: "先延ばし", question: "やるべきことを後回しにする習慣がある。" },
+      { id: 20, domain: "平常心", layer: "第1層", rootType: "完璧主義", question: "完璧にできないと気が済まない。" },
+      { id: 21, domain: "平常心", layer: "第3層", rootType: "家系の怒り", question: "家族間に未解決の対立を感じる。" },
+      { id: 22, domain: "平常心", layer: "第1層", rootType: "怒り", question: "怒りをうまく処理できずため込んでしまう。" },
+      { id: 23, domain: "平常心", layer: "第1層", rootType: "逃避", question: "嫌なことに向き合う前に逃げたくなる。" },
+      // 使命（2）
+      { id: 24, domain: "使命", layer: "第1層", rootType: "依存", question: "他人の評価に強く影響される。" },
+      { id: 25, domain: "使命", layer: "第2層", rootType: "成功恐怖", question: "成功すると叩かれる気がする。" },
+      // 調和（1）
+      { id: 26, domain: "調和", layer: "第1層", rootType: "自己不信", question: "自分の判断・選択に自信が持てない。" }
+    ];
+
+    // 資質翻訳（ポジティブ表現）
+    var talentTranslation = {
+      "家系の恥": { talent: "家族を守る意識が強い", growth: "過去を受け入れることで、さらに深い絆を築けます" },
+      "比較": { talent: "向上心が高く、成長意欲がある", growth: "自分軸を持つことで、才能がさらに開花します" },
+      "無力感": { talent: "慎重で、リスクを見極める力がある", growth: "小さな成功体験を重ねることで自信が育ちます" },
+      "罪悪感": { talent: "倫理観が高く、誠実である", growth: "自分を許すことで、周囲にも優しくなれます" },
+      "自己否定": { talent: "謙虚で、成長の余地を常に見ている", growth: "自分の価値を認めることで、本来の力が発揮されます" },
+      "不安": { talent: "先を見通す力、準備力が高い", growth: "今に集中することで、不安はエネルギーに変わります" },
+      "家系の恐怖": { talent: "繊細で、危険を察知する力がある", growth: "安心できる環境を作ることで、才能が開花します" },
+      "被害者意識": { talent: "公平さを重視し、正義感が強い", growth: "自分の選択に責任を持つことで、主導権を取り戻せます" },
+      "家系の役割固定": { talent: "責任感が強く、信頼される存在", growth: "自分らしさを表現することで、新しい役割が見つかります" },
+      "家系の犠牲": { talent: "献身的で、人を大切にできる", growth: "自分も大切にすることで、より深い愛を与えられます" },
+      "排他性": { talent: "信念が明確で、軸がぶれない", growth: "他者の視点を取り入れることで、視野が広がります" },
+      "自己犠牲": { talent: "思いやりが深く、貢献意欲が高い", growth: "自分の時間も大切にすることで、持続可能な貢献ができます" },
+      "貧困マインド": { talent: "堅実で、資源を大切にする力がある", growth: "豊かさを受け取る許可を自分に与えましょう" },
+      "過剰な自己責任": { talent: "当事者意識が高く、誠実である", growth: "適切な境界線を引くことで、本来の責任に集中できます" },
+      "人間不信": { talent: "洞察力が鋭く、人を見抜く力がある", growth: "信頼できる人から始めることで、関係性が豊かになります" },
+      "家系の喪失": { talent: "命の尊さを知り、今を大切にできる", growth: "悲しみを癒すことで、深い共感力が生まれます" },
+      "悲しみ": { talent: "感受性が豊かで、人の痛みがわかる", growth: "悲しみを表現することで、心が軽くなります" },
+      "愛を受け取れない": { talent: "自立心が強く、人に頼らない強さがある", growth: "受け取ることも愛の表現だと知ることで、関係が深まります" },
+      "先延ばし": { talent: "慎重で、最適なタイミングを見極める力がある", growth: "小さな一歩から始めることで、行動力が身につきます" },
+      "完璧主義": { talent: "質へのこだわりが強く、高い基準を持つ", growth: "「十分良い」を認めることで、より多くを達成できます" },
+      "家系の怒り": { talent: "正義感が強く、不正を許さない心がある", growth: "怒りの奥にある願いに気づくことで、建設的な力に変わります" },
+      "怒り": { talent: "エネルギーが高く、情熱的である", growth: "怒りを適切に表現することで、境界線を守れます" },
+      "逃避": { talent: "自己保存の本能が強く、危険を避ける力がある", growth: "安全な環境で少しずつ向き合うことで、強さが育ちます" },
+      "依存": { talent: "協調性が高く、チームワークを大切にする", growth: "自分の意見を表現することで、より良い関係が築けます" },
+      "成功恐怖": { talent: "謙虚で、周囲への配慮ができる", growth: "あなたの成功は周囲にも良い影響を与えると知ることで、前に進めます" },
+      "自己不信": { talent: "熟考する力があり、軽率な判断をしない", growth: "直感を信じる練習をすることで、決断力が高まります" }
+    };
+
+    // 7領域の説明
+    var domainDescriptions = {
+      "確信": { name: "確信", description: "自己価値感・自信", meaning: "自分の存在価値への確信" },
+      "信念": { name: "信念", description: "思考パターン・世界観", meaning: "物事の捉え方の基盤" },
+      "感謝": { name: "感謝", description: "与える・受け取るバランス", meaning: "豊かさの循環" },
+      "愛": { name: "愛", description: "人間関係・愛着", meaning: "他者とのつながり" },
+      "平常心": { name: "平常心", description: "感情コントロール", meaning: "心の安定と行動力" },
+      "使命": { name: "使命", description: "自己実現・目的", meaning: "人生の方向性" },
+      "調和": { name: "調和", description: "自己信頼・決断力", meaning: "内なる声との一致" }
+    };
+
+    // State
+    var currentPage = 'intro';
+    var answers = {};
+    var currentQ = 0;
+    var userName = '';
+    var userEmail = '';
+    var calculatedResults = null;
+
+    function countAnswers() {
+      return Object.keys(answers).length;
+    }
+
+    function calculateResults() {
+      var domainScores = {};
+      var layerScores = { "第1層": { total: 0, count: 0 }, "第2層": { total: 0, count: 0 }, "第3層": { total: 0, count: 0 } };
+      var rootTypeScores = {};
+
+      for (var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        var answer = answers[q.id];
+        if (answer === undefined) answer = 0;
+
+        // 良い点 = 4 - 回答
+        var goodScore = 4 - answer;
+        var talentIndex = goodScore / 4;
+
+        if (!domainScores[q.domain]) {
+          domainScores[q.domain] = { goodTotal: 0, badTotal: 0, count: 0 };
+        }
+        domainScores[q.domain].goodTotal += goodScore;
+        domainScores[q.domain].badTotal += answer;
+        domainScores[q.domain].count++;
+
+        layerScores[q.layer].total += answer;
+        layerScores[q.layer].count++;
+
+        rootTypeScores[q.rootType] = {
+          answer: answer,
+          goodScore: goodScore,
+          talentIndex: talentIndex,
+          domain: q.domain,
+          layer: q.layer
+        };
+      }
+
+      // 領域の才能指数を計算
+      for (var d in domainScores) {
+        var maxPossible = domainScores[d].count * 4;
+        domainScores[d].talentIndex = domainScores[d].goodTotal / maxPossible;
+      }
+
+      // 層別エネルギー比率を計算
+      var totalBad = 0;
+      for (var l in layerScores) {
+        totalBad += layerScores[l].total;
+      }
+      for (var l in layerScores) {
+        var maxPossible = layerScores[l].count * 4;
+        layerScores[l].goodRatio = (maxPossible - layerScores[l].total) / maxPossible;
+        layerScores[l].energyRatio = totalBad > 0 ? layerScores[l].total / totalBad : 0;
+      }
+
+      // 根っ子タイプを才能指数順にソート（低い順 = 成長の余地が大きい順）
+      var sortedRoots = [];
+      for (var name in rootTypeScores) {
+        sortedRoots.push([name, rootTypeScores[name]]);
+      }
+      sortedRoots.sort(function(a, b) { return a[1].talentIndex - b[1].talentIndex; });
+
+      // 領域を才能指数順にソート（低い順）
+      var sortedDomains = [];
+      for (var dom in domainScores) {
+        sortedDomains.push([dom, domainScores[dom]]);
+      }
+      sortedDomains.sort(function(a, b) { return a[1].talentIndex - b[1].talentIndex; });
+
+      // 全体の才能指数（健康度）
+      var totalGood = 0;
+      for (var d in domainScores) {
+        totalGood += domainScores[d].goodTotal;
+      }
+      var overallTalentIndex = totalGood / (questions.length * 4);
+
+      return {
+        rootTypeScores: rootTypeScores,
+        sortedRoots: sortedRoots,
+        sortedDomains: sortedDomains,
+        domainScores: domainScores,
+        layerScores: layerScores,
+        overallTalentIndex: overallTalentIndex
+      };
+    }
+
+    function showPage(page) {
+      currentPage = page;
+      render();
+    }
+
+    function answerQuestion(qid, val) {
+      answers[qid] = val;
+      var answered = countAnswers();
+
+      if (answered >= questions.length) {
+        setTimeout(function() { showPage('email'); }, 300);
+      } else if (currentQ < questions.length - 1) {
+        setTimeout(function() { currentQ++; render(); }, 200);
+      } else {
+        render();
+      }
+    }
+
+    function render() {
+      var root = document.getElementById('root');
+
+      if (currentPage === 'intro') {
+        renderIntro(root);
+      } else if (currentPage === 'quiz') {
+        renderQuiz(root);
+      } else if (currentPage === 'email') {
+        renderEmail(root);
+      } else if (currentPage === 'results') {
+        renderResults(root);
+      }
+    }
+
+    function renderIntro(root) {
+      root.innerHTML =
+        '<div class="min-h-screen bg-gradient-to-b from-leaf-500 to-leaf-600 flex items-center justify-center p-4">' +
+          '<div class="max-w-xl w-full">' +
+            '<div class="text-center mb-8">' +
+              '<div class="inline-flex items-center justify-center w-20 h-20 bg-gold-400 rounded-full mb-6 shadow-lg">' +
+                '<span class="text-4xl">🌱</span>' +
+              '</div>' +
+              '<h1 class="text-4xl font-light text-white mb-3">根っ子診断</h1>' +
+              '<p class="text-leaf-100 text-lg">あなたの心の根っ子を見つめ直す旅</p>' +
+            '</div>' +
+
+            '<div class="bg-white rounded-2xl shadow-xl p-8 mb-6">' +
+              '<p class="text-center text-gray-600 mb-6 leading-relaxed">' +
+                'あなたが今日、この診断にたどり着いたこと。<br>' +
+                'それ自体が、根っ子が静かに浄化へ向かい始めたサインです。' +
+              '</p>' +
+
+              '<div class="grid grid-cols-3 gap-4 text-center mb-8">' +
+                '<div class="bg-leaf-50 rounded-xl p-4 border border-leaf-100">' +
+                  '<p class="text-3xl font-light text-leaf-600">26</p>' +
+                  '<p class="text-leaf-500 text-sm">設問</p>' +
+                '</div>' +
+                '<div class="bg-leaf-50 rounded-xl p-4 border border-leaf-100">' +
+                  '<p class="text-3xl font-light text-leaf-600">7</p>' +
+                  '<p class="text-leaf-500 text-sm">領域</p>' +
+                '</div>' +
+                '<div class="bg-leaf-50 rounded-xl p-4 border border-leaf-100">' +
+                  '<p class="text-3xl font-light text-leaf-600">5</p>' +
+                  '<p class="text-leaf-500 text-sm">分</p>' +
+                '</div>' +
+              '</div>' +
+
+              '<div class="bg-leaf-50 rounded-xl p-5 mb-6">' +
+                '<h3 class="font-medium text-leaf-800 mb-3">🌱 根っ子診断とは？</h3>' +
+                '<p class="text-sm text-gray-600 leading-relaxed">' +
+                  '人の行動・感情・思考の奥には、その人の人生を左右する<strong>26の根っ子のパターン</strong>が存在します。' +
+                  '本来は130問必要な深層診断ですが、藤井式アルゴリズムにより<strong>26問で同等の精度</strong>を実現しました。' +
+                '</p>' +
+              '</div>' +
+
+              '<div class="space-y-3 text-gray-700 mb-6">' +
+                '<div class="flex items-start">' +
+                  '<span class="flex-shrink-0 w-6 h-6 bg-gold-400 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3">✓</span>' +
+                  '<span class="text-sm">あなたの<strong>隠れた才能・強み</strong>を発見</span>' +
+                '</div>' +
+                '<div class="flex items-start">' +
+                  '<span class="flex-shrink-0 w-6 h-6 bg-gold-400 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3">✓</span>' +
+                  '<span class="text-sm"><strong>成長のチャンス</strong>がある領域を特定</span>' +
+                '</div>' +
+                '<div class="flex items-start">' +
+                  '<span class="flex-shrink-0 w-6 h-6 bg-gold-400 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3">✓</span>' +
+                  '<span class="text-sm">今日から変化を起こす<strong>具体的アドバイス</strong></span>' +
+                '</div>' +
+              '</div>' +
+
+              '<div class="bg-gold-50 border border-gold-200 rounded-xl p-4 mb-6">' +
+                '<p class="text-sm text-gold-800">' +
+                  '<span class="font-medium">回答方法：</span>各設問について、0（全く当てはまらない）〜 4（非常に当てはまる）の5段階で回答' +
+                '</p>' +
+              '</div>' +
+
+              '<button id="startBtn" class="w-full bg-gradient-to-r from-leaf-500 to-leaf-600 text-white py-4 rounded-xl font-medium hover:from-leaf-600 hover:to-leaf-700 transition-all shadow-lg">' +
+                '診断を開始する' +
+              '</button>' +
+            '</div>' +
+
+            '<p class="text-center text-leaf-200 text-sm">根っ子学® — 藤井薫</p>' +
+          '</div>' +
+        '</div>';
+
+      document.getElementById('startBtn').onclick = function() { showPage('quiz'); };
+    }
+
+    function renderQuiz(root) {
+      var q = questions[currentQ];
+      var answered = countAnswers();
+      var progress = (answered / questions.length) * 100;
+      var remaining = questions.length - answered;
+
+      var html =
+        '<div class="min-h-screen bg-leaf-50">' +
+          '<div class="bg-white border-b border-leaf-100 sticky top-0 z-10">' +
+            '<div class="max-w-2xl mx-auto px-4 py-4">' +
+              '<div class="flex justify-between items-center mb-3">' +
+                '<span class="text-sm text-leaf-600">Question ' + (currentQ + 1) + ' / ' + questions.length + '</span>' +
+                '<span class="text-sm font-medium text-gold-600">' + Math.round(progress) + '%</span>' +
+              '</div>' +
+              '<div class="w-full bg-leaf-100 rounded-full h-2">' +
+                '<div class="bg-gradient-to-r from-leaf-400 to-leaf-500 h-2 rounded-full transition-all duration-300" style="width:' + progress + '%"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="max-w-2xl mx-auto px-4 py-8">' +
+            '<div class="bg-white rounded-2xl shadow-sm border border-leaf-100">' +
+              '<div class="px-6 py-4 border-b border-leaf-100 bg-gradient-to-r from-leaf-50 to-white rounded-t-2xl">' +
+                '<div class="flex items-center justify-between">' +
+                  '<div class="flex items-center space-x-3">' +
+                    '<span class="text-sm font-medium text-leaf-700">' + q.domain + '</span>' +
+                    '<span class="text-leaf-300">|</span>' +
+                    '<span class="text-sm text-leaf-500">' + q.layer + '</span>' +
+                  '</div>' +
+                  '<span class="text-xs text-gold-700 bg-gold-100 px-3 py-1 rounded-full border border-gold-200">' + q.rootType + '</span>' +
+                '</div>' +
+              '</div>' +
+
+              '<div class="p-8">' +
+                '<p class="text-xl text-gray-800 text-center leading-relaxed mb-10">' + q.question + '</p>' +
+                '<div class="space-y-3" id="options"></div>' +
+              '</div>' +
+
+              '<div class="px-6 py-4 bg-leaf-50/50 border-t border-leaf-100 flex justify-between items-center rounded-b-2xl">' +
+                '<button id="prevBtn" class="text-sm text-leaf-600 hover:text-leaf-800 transition-colors">← 前の質問</button>' +
+                '<span class="text-sm text-leaf-400">' + (remaining > 0 ? '残り ' + remaining + ' 問' : '完了') + '</span>' +
+                '<button id="nextBtn" class="text-sm text-leaf-600 hover:text-leaf-800 transition-colors">次の質問 →</button>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="mt-6 flex flex-wrap gap-1 justify-center" id="dots"></div>' +
+          '</div>' +
+        '</div>';
+
+      root.innerHTML = html;
+
+      var optionsDiv = document.getElementById('options');
+      var opts = [
+        { v: 0, l: "全く当てはまらない" },
+        { v: 1, l: "あまり当てはまらない" },
+        { v: 2, l: "どちらとも言えない" },
+        { v: 3, l: "やや当てはまる" },
+        { v: 4, l: "非常に当てはまる" }
+      ];
+
+      for (var i = 0; i < opts.length; i++) {
+        var opt = opts[i];
+        var btn = document.createElement('button');
+        var isSelected = answers[q.id] === opt.v;
+        btn.className = 'w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ' +
+          (isSelected ? 'border-leaf-500 bg-leaf-500 text-white' : 'border-leaf-200 hover:border-leaf-400 text-gray-700 bg-white');
+        btn.innerHTML = '<span>' + opt.l + '</span><span class="font-medium">' + opt.v + '</span>';
+        btn.setAttribute('data-value', opt.v);
+        btn.onclick = function() {
+          answerQuestion(q.id, parseInt(this.getAttribute('data-value')));
+        };
+        optionsDiv.appendChild(btn);
+      }
+
+      var dotsDiv = document.getElementById('dots');
+      for (var j = 0; j < questions.length; j++) {
+        var dot = document.createElement('button');
+        var isAns = answers[questions[j].id] !== undefined;
+        var isCur = j === currentQ;
+        dot.className = 'w-2 h-2 rounded-full transition-all ' +
+          (isAns ? 'bg-leaf-500' : isCur ? 'bg-gold-400' : 'bg-leaf-200');
+        dot.setAttribute('data-idx', j);
+        dot.onclick = function() {
+          currentQ = parseInt(this.getAttribute('data-idx'));
+          render();
+        };
+        dotsDiv.appendChild(dot);
+      }
+
+      document.getElementById('prevBtn').onclick = function() {
+        if (currentQ > 0) { currentQ--; render(); }
+      };
+
+      var nextBtn = document.getElementById('nextBtn');
+      if (currentQ >= questions.length - 1) {
+        if (remaining === 0) {
+          nextBtn.textContent = '結果を確認 →';
+          nextBtn.className = 'text-sm font-medium text-gold-600 hover:text-gold-700 transition-colors';
+          nextBtn.onclick = function() { showPage('email'); };
+        } else {
+          nextBtn.textContent = '未回答あり';
+          nextBtn.className = 'text-sm text-leaf-300';
+        }
+      } else {
+        nextBtn.onclick = function() { currentQ++; render(); };
+      }
+    }
+
+    function renderEmail(root) {
+      root.innerHTML =
+        '<div class="min-h-screen bg-gradient-to-b from-leaf-500 to-leaf-600 flex items-center justify-center p-4">' +
+          '<div class="max-w-md w-full">' +
+            '<div class="text-center mb-8">' +
+              '<div class="w-16 h-16 bg-gold-400 rounded-full mx-auto flex items-center justify-center mb-6 shadow-lg">' +
+                '<span class="text-3xl">✨</span>' +
+              '</div>' +
+              '<h2 class="text-2xl font-light text-white mb-2">診断完了</h2>' +
+              '<p class="text-leaf-100">結果レポートをお送りします</p>' +
+            '</div>' +
+
+            '<div class="bg-white rounded-2xl shadow-xl p-8">' +
+              '<div class="space-y-4 mb-6">' +
+                '<div>' +
+                  '<label class="block text-sm text-gray-600 mb-2">お名前（ニックネーム可）</label>' +
+                  '<input type="text" id="nameInput" placeholder="山田 太郎" class="w-full px-4 py-3 bg-leaf-50 border border-leaf-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-leaf-400 focus:ring-2 focus:ring-leaf-100">' +
+                '</div>' +
+                '<div>' +
+                  '<label class="block text-sm text-gray-600 mb-2">メールアドレス <span class="text-red-400">*</span></label>' +
+                  '<input type="email" id="emailInput" placeholder="example@email.com" class="w-full px-4 py-3 bg-leaf-50 border border-leaf-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-leaf-400 focus:ring-2 focus:ring-leaf-100">' +
+                '</div>' +
+              '</div>' +
+              '<div class="bg-leaf-50 rounded-lg p-3 mb-6">' +
+                '<p class="text-xs text-gray-500 text-center">🔒 メールアドレスは診断結果送付のみに使用します</p>' +
+              '</div>' +
+              '<button id="submitBtn" class="w-full bg-gradient-to-r from-leaf-500 to-leaf-600 text-white py-4 rounded-xl font-medium hover:from-leaf-600 hover:to-leaf-700 transition-all shadow-lg">結果を受け取る</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      document.getElementById('submitBtn').onclick = function() {
+        userName = document.getElementById('nameInput').value;
+        userEmail = document.getElementById('emailInput').value;
+
+        if (!userEmail || userEmail.indexOf('@') === -1) {
+          alert('有効なメールアドレスを入力してください');
+          return;
+        }
+
+        calculatedResults = calculateResults();
+
+        // Webhook送信用データ
+        var top5 = calculatedResults.sortedRoots.slice(0, 5);
+        var domainText = '';
+        for (var i = 0; i < calculatedResults.sortedDomains.length; i++) {
+          var d = calculatedResults.sortedDomains[i];
+          domainText += d[0] + ': ' + Math.round(d[1].talentIndex * 100) + '% / ';
+        }
+
+        var layerText = '';
+        for (var l in calculatedResults.layerScores) {
+          layerText += l + ': ' + Math.round(calculatedResults.layerScores[l].goodRatio * 100) + '% / ';
+        }
+
+        if (WEBHOOK_URL && WEBHOOK_URL.length > 10) {
+          fetch(WEBHOOK_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: userName,
+              email: userEmail,
+              overallTalentIndex: Math.round(calculatedResults.overallTalentIndex * 100),
+              top1: top5[0] ? top5[0][0] + ' (' + Math.round(top5[0][1].talentIndex * 100) + '%)' : '',
+              top2: top5[1] ? top5[1][0] + ' (' + Math.round(top5[1][1].talentIndex * 100) + '%)' : '',
+              top3: top5[2] ? top5[2][0] + ' (' + Math.round(top5[2][1].talentIndex * 100) + '%)' : '',
+              top4: top5[3] ? top5[3][0] + ' (' + Math.round(top5[3][1].talentIndex * 100) + '%)' : '',
+              top5: top5[4] ? top5[4][0] + ' (' + Math.round(top5[4][1].talentIndex * 100) + '%)' : '',
+              domainScores: domainText,
+              layerScores: layerText
+            })
+          });
+        }
+
+        showPage('results');
+      };
+    }
+
+    function renderResults(root) {
+      var overallPercent = Math.round(calculatedResults.overallTalentIndex * 100);
+
+      // TOP1の成長チャンス
+      var top1 = calculatedResults.sortedRoots[0];
+      var top1Name = top1[0];
+      var top1Data = top1[1];
+      var top1Translation = talentTranslation[top1Name] || { talent: "", growth: "" };
+
+      // 層別エネルギー
+      var layer1Good = Math.round(calculatedResults.layerScores["第1層"].goodRatio * 100);
+      var layer2Good = Math.round(calculatedResults.layerScores["第2層"].goodRatio * 100);
+      var layer3Good = Math.round(calculatedResults.layerScores["第3層"].goodRatio * 100);
+
+      // 最も成長の余地がある領域
+      var worstDomain = calculatedResults.sortedDomains[0];
+      var worstDomainName = worstDomain[0];
+
+      // 判定メッセージ
+      var balanceMessage = "";
+      if (layer3Good < 65) {
+        balanceMessage = "家系由来のパターンが活性化しています。深層の癒しがテーマです。";
+      } else if (layer2Good < 65) {
+        balanceMessage = "信念や価値観の再構築フェーズにあります。柔軟性がカギです。";
+      } else if (layer1Good < 65) {
+        balanceMessage = "行動パターンに改善の余地があります。小さな一歩から始めましょう。";
+      } else {
+        balanceMessage = "バランスの良い状態です。さらなる成長の準備ができています。";
+      }
+
+      root.innerHTML =
+        '<div class="min-h-screen bg-leaf-50">' +
+          '<div class="bg-gradient-to-b from-leaf-500 to-leaf-600 text-white py-12 px-4">' +
+            '<div class="max-w-2xl mx-auto text-center">' +
+              '<p class="text-leaf-200 text-sm tracking-widest mb-4">DIAGNOSIS COMPLETE</p>' +
+              '<h1 class="text-3xl font-light mb-2">診断結果</h1>' +
+              '<p class="text-leaf-100">' + userEmail + ' に詳細レポートを送信しました</p>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="max-w-2xl mx-auto px-4 py-8">' +
+
+            // 全体バランス指標
+            '<div class="bg-white rounded-2xl shadow-sm border border-leaf-100 p-8 mb-6">' +
+              '<div class="text-center">' +
+                '<p class="text-sm text-leaf-600 mb-2">あなたの根っ子バランス</p>' +
+                '<p class="text-6xl font-light text-leaf-600 mb-2">' + overallPercent + '<span class="text-2xl text-leaf-400">%</span></p>' +
+                '<div class="w-full bg-leaf-100 rounded-full h-3 mt-4 mb-4">' +
+                  '<div class="bg-gradient-to-r from-leaf-400 to-leaf-500 h-3 rounded-full" style="width:' + overallPercent + '%"></div>' +
+                '</div>' +
+                '<p class="text-sm text-gray-600">' + balanceMessage + '</p>' +
+              '</div>' +
+            '</div>' +
+
+            // 層別エネルギー比率
+            '<div class="bg-white rounded-2xl shadow-sm border border-leaf-100 p-8 mb-6">' +
+              '<h2 class="text-lg font-medium text-gray-800 mb-6">層別エネルギー状態</h2>' +
+              '<div class="space-y-4">' +
+                '<div>' +
+                  '<div class="flex justify-between mb-1">' +
+                    '<span class="text-sm font-medium text-gray-700">第1層（行動・感情）</span>' +
+                    '<span class="text-sm text-leaf-600">' + layer1Good + '%</span>' +
+                  '</div>' +
+                  '<div class="w-full bg-leaf-100 rounded-full h-2">' +
+                    '<div class="bg-leaf-400 h-2 rounded-full" style="width:' + layer1Good + '%"></div>' +
+                  '</div>' +
+                '</div>' +
+                '<div>' +
+                  '<div class="flex justify-between mb-1">' +
+                    '<span class="text-sm font-medium text-gray-700">第2層（信念・価値観）</span>' +
+                    '<span class="text-sm text-leaf-600">' + layer2Good + '%</span>' +
+                  '</div>' +
+                  '<div class="w-full bg-leaf-100 rounded-full h-2">' +
+                    '<div class="bg-leaf-500 h-2 rounded-full" style="width:' + layer2Good + '%"></div>' +
+                  '</div>' +
+                '</div>' +
+                '<div>' +
+                  '<div class="flex justify-between mb-1">' +
+                    '<span class="text-sm font-medium text-gray-700">第3層（家系・深層）</span>' +
+                    '<span class="text-sm text-leaf-600">' + layer3Good + '%</span>' +
+                  '</div>' +
+                  '<div class="w-full bg-leaf-100 rounded-full h-2">' +
+                    '<div class="bg-leaf-600 h-2 rounded-full" style="width:' + layer3Good + '%"></div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<p class="text-xs text-gray-500 mt-4 text-center">数値が高いほど、その層が安定しています</p>' +
+            '</div>' +
+
+            // 成長のチャンス（ポジティブ表現）
+            '<div class="bg-white rounded-2xl shadow-sm border border-leaf-100 p-8 mb-6">' +
+              '<div class="flex items-center justify-between mb-6">' +
+                '<h2 class="text-lg font-medium text-gray-800">最大の成長チャンス</h2>' +
+                '<span class="text-xs text-gold-700 bg-gold-100 px-3 py-1 rounded-full border border-gold-300">注目</span>' +
+              '</div>' +
+
+              '<div class="bg-gradient-to-r from-gold-50 to-gold-100 border border-gold-200 rounded-xl p-6 mb-4">' +
+                '<p class="text-xl font-medium text-gray-800 mb-2">' + top1Name + '</p>' +
+                '<p class="text-sm text-gray-500 mb-4">' + top1Data.domain + ' / ' + top1Data.layer + '</p>' +
+
+                '<div class="bg-white rounded-lg p-4 mb-4">' +
+                  '<p class="text-sm text-leaf-700 mb-1"><span class="font-medium">✨ あなたの才能：</span></p>' +
+                  '<p class="text-sm text-gray-700">' + top1Translation.talent + '</p>' +
+                '</div>' +
+
+                '<div class="bg-white rounded-lg p-4">' +
+                  '<p class="text-sm text-gold-700 mb-1"><span class="font-medium">🌱 成長のヒント：</span></p>' +
+                  '<p class="text-sm text-gray-700">' + top1Translation.growth + '</p>' +
+                '</div>' +
+              '</div>' +
+
+              '<div class="space-y-2 opacity-60">' +
+                '<div class="flex items-center justify-between py-2 border-b border-leaf-100">' +
+                  '<span class="text-sm text-gray-500">2nd</span>' +
+                  '<div class="flex-1 mx-4 h-2 bg-leaf-100 rounded"></div>' +
+                  '<span class="text-sm text-gray-400">詳細はメールで</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between py-2 border-b border-leaf-100">' +
+                  '<span class="text-sm text-gray-500">3rd</span>' +
+                  '<div class="flex-1 mx-4 h-2 bg-leaf-100 rounded"></div>' +
+                  '<span class="text-sm text-gray-400">詳細はメールで</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            // ニュースレター
+            '<div class="bg-gradient-to-br from-leaf-500 to-leaf-600 rounded-2xl p-8 mb-6 text-center relative overflow-hidden">' +
+              '<div class="absolute top-0 right-0 w-32 h-32 bg-gold-400/20 rounded-full -mr-16 -mt-16"></div>' +
+              '<div class="relative">' +
+                '<h2 class="text-xl font-light text-white mb-3">根っ子学ニュースレター</h2>' +
+                '<p class="text-leaf-100 text-sm mb-6">潜在意識の根っ子を癒し、本来の才能を開花させるための<br>実践的な知見をお届けします</p>' +
+                '<a href="' + NEWSLETTER_URL + '" target="_blank" class="inline-block bg-gold-400 text-white px-8 py-3 rounded-xl font-medium hover:bg-gold-500 transition-colors shadow-lg">購読する</a>' +
+              '</div>' +
+            '</div>' +
+
+            // シェア
+            '<div class="bg-white rounded-2xl shadow-sm border border-leaf-100 p-6 mb-6">' +
+              '<p class="text-sm text-gray-500 text-center mb-4">この診断を共有する</p>' +
+              '<div class="flex justify-center gap-4">' +
+                '<a href="https://twitter.com/intent/tweet?text=根っ子診断で自分の隠れた才能を発見しました！&url=' + encodeURIComponent(window.location.href) + '" target="_blank" class="w-10 h-10 bg-leaf-100 rounded-full flex items-center justify-center hover:bg-leaf-200 transition-colors">' +
+                  '<span class="text-leaf-600 text-sm font-bold">X</span>' +
+                '</a>' +
+                '<a href="https://line.me/R/msg/text/?根っ子診断を受けてみてください%0A' + encodeURIComponent(window.location.href) + '" target="_blank" class="w-10 h-10 bg-leaf-100 rounded-full flex items-center justify-center hover:bg-leaf-200 transition-colors">' +
+                  '<span class="text-leaf-600 text-sm font-bold">L</span>' +
+                '</a>' +
+              '</div>' +
+            '</div>' +
+
+            '<p class="text-center text-gray-400 text-sm py-6">根っ子学® — 藤井薫</p>' +
+          '</div>' +
+        '</div>';
+    }
+
+    render();
+  </script>
+</body>
+</html>
